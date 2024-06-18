@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 
+// Data.
 let persons = [
   {
     id: 1,
@@ -23,6 +24,9 @@ let persons = [
     number: '39-23-6423122',
   },
 ];
+
+// Express middleware.
+app.use(express.json());
 
 // Requests.
 app.get('/api/persons', (request, response) => {
@@ -55,6 +59,31 @@ app.delete('/api/persons/:id', (request, response) => {
 
   response.status(204).end();
 });
+
+app.post('/api/persons', (request, response) => {
+  const body = request.body;
+
+  if (!body) {
+    return response.status(400).json({
+      error: 'Content missing, need content to add new person.',
+    });
+  }
+
+  const person = {
+    id: generateId(),
+    name: body.name,
+    number: body.number,
+  };
+
+  persons = persons.concat(person);
+
+  response.json(person);
+});
+
+// Helper method used to generate a new ID for each person that is added to the phonebook.
+const generateId = () => {
+  return Math.floor(Math.random() * 10000 + 5);
+};
 
 const PORT = 3001;
 app.listen(PORT, () => {
