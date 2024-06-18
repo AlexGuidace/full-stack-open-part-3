@@ -29,6 +29,15 @@ app.get('/api/persons', (request, response) => {
   response.json(persons);
 });
 
+app.get('/info', (request, response) => {
+  const peopleCount = persons.length;
+  const requestTime = new Date();
+  const message = `<p>The phonebook has info for ${peopleCount} people.</p>
+   <p>Time this information was requested: ${requestTime}.</p>`;
+
+  response.send(message);
+});
+
 const PORT = 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
