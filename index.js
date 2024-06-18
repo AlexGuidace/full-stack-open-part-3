@@ -63,10 +63,22 @@ app.delete('/api/persons/:id', (request, response) => {
 app.post('/api/persons', (request, response) => {
   const body = request.body;
 
-  if (!body) {
-    return response.status(400).json({
-      error: 'Content missing, need content to add new person.',
-    });
+  // Check to see if name entered by the user is already in phonebook.
+  const name = persons.find(
+    (item) => item.name.toLowerCase() === body.name.toLowerCase()
+  );
+
+  if (name) {
+    return response
+      .status(400)
+      .json({ error: 'The name you entered is already in the phonebook.' });
+  }
+
+  // Check to see that both name and number fields have been filled in.
+  if (!body.name || !body.number) {
+    return response
+      .status(400)
+      .json({ error: 'Name and number fields must be filled in.' });
   }
 
   const person = {
