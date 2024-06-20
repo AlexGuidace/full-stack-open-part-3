@@ -28,9 +28,26 @@ let persons = [
   },
 ];
 
+// Custom morgan token specifically used for logging payload data that was sent in POST requests.
+morgan.token('payloadData', (request, response) => {
+  return JSON.stringify(request.body);
+});
+
+// Middleware function used to generate a morgan middleware function for logging POST request payload data using the above morgan token.
+const postLogger = (request, response, next) => {
+  if (request.method === 'POST') {
+    // Generate a morgan function using the current Express middleware function signature values--(request, response, next); this is a general syntax pattern in Express apps for use with middleware generators like morgan.
+    morgan(
+      ':method :url :status :res[content-length] - :response-time ms payloadData: :payloadData'
+    )(request, response, next);
+  } else {
+    next();
+  }
+};
+
 // Express middleware.
 app.use(express.json());
-app.use(morgan('tiny'));
+app.use(postLogger);
 
 // Routes.
 app.get('/api/persons', (request, response) => {
