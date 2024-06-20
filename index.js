@@ -1,6 +1,9 @@
 const express = require('express');
 const app = express();
 
+// HTTP request logger middleware.
+const morgan = require('morgan');
+
 // Data.
 let persons = [
   {
@@ -27,8 +30,9 @@ let persons = [
 
 // Express middleware.
 app.use(express.json());
+app.use(morgan('tiny'));
 
-// Requests.
+// Routes.
 app.get('/api/persons', (request, response) => {
   response.json(persons);
 });
