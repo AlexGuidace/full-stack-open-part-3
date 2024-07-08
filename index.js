@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 
+// Enables our Express server (on port 3001) to connect to the external frontend (hosted on port 5173).
+const cors = require('cors');
 // HTTP request logger middleware.
 const morgan = require('morgan');
 
@@ -46,6 +48,7 @@ const postLogger = (request, response, next) => {
 };
 
 // Express middleware.
+app.use(cors());
 app.use(express.json());
 app.use(postLogger);
 
