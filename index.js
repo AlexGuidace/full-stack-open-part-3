@@ -48,6 +48,7 @@ const postLogger = (request, response, next) => {
 };
 
 // Express middleware.
+app.use(express.static('dist'));
 app.use(cors());
 app.use(express.json());
 app.use(postLogger);
