@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 
 if (process.argv.length < 3) {
   console.log(
-    'You need to add your password as an argument on the command line.'
+    'You need to add your password as an argument on the command-line.'
   );
   process.exit(1);
 }
@@ -32,6 +32,8 @@ const person = new Person({
 });
 
 person.save().then((saveResult) => {
-  console.log(saveResult);
+  console.log(
+    `Added '${saveResult.name}' with phone number '${saveResult.number}' to the phonebook.`
+  );
   mongoose.connection.close();
 });
