@@ -26,7 +26,7 @@ const personSchema = new mongoose.Schema({
 
 const Person = mongoose.model('Person', personSchema);
 
-// If no entry is provided from the command-line, return all entries in the phonebook. Otherwise, create a new entry in the phonebook.
+// If no entry is provided from the command-line, log all entries in the phonebook. Otherwise, create a new entry in the phonebook and log it.
 if (process.argv.length === 3) {
   Person.find({}).then((result) => {
     console.log('Phonebook: ');
