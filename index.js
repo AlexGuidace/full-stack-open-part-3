@@ -53,7 +53,7 @@ app.use(cors());
 app.use(express.json());
 app.use(postLogger);
 
-// Routes
+// Routes.
 app.get('/api/persons', (request, response) => {
   response.json(persons);
 });
