@@ -1,34 +1,12 @@
+// Load environment variables into process.env.
+require('dotenv').config();
 const express = require('express');
 const app = express();
-
 // Enables our Express server (on port 3001) to connect to the external frontend (hosted on port 5173).
 const cors = require('cors');
 // HTTP request logger middleware.
 const morgan = require('morgan');
-
-// Data.
-let persons = [
-  {
-    id: 1,
-    name: 'Arto Hellas',
-    number: '040-123456',
-  },
-  {
-    id: 2,
-    name: 'Ada Lovelace',
-    number: '39-44-5323523',
-  },
-  {
-    id: 3,
-    name: 'Dan Abramov',
-    number: '12-43-234345',
-  },
-  {
-    id: 4,
-    name: 'Mary Poppendieck',
-    number: '39-23-6423122',
-  },
-];
+const Person = require('./models/person');
 
 // Custom morgan token specifically used for logging payload data that was sent in POST requests.
 morgan.token('payloadData', (request, response) => {
@@ -55,49 +33,52 @@ app.use(postLogger);
 
 // Routes.
 app.get('/api/persons', (request, response) => {
-  response.json(persons);
+  Person.find({}).then((people) => {
+    response.json(people);
+  });
 });
 
-app.get('/info', (request, response) => {
-  const peopleCount = persons.length;
-  const requestTime = new Date();
-  const message = `<p>The phonebook has info for ${peopleCount} people.</p>
-   <p>Time this information was requested: ${requestTime}.</p>`;
+///////////// COMMENTED OUT SOME CODE FOR EXERCISE 3.14. /////////////
+// app.get('/info', (request, response) => {
+//   const peopleCount = persons.length;
+//   const requestTime = new Date();
+//   const message = `<p>The phonebook has info for ${peopleCount} people.</p>
+//    <p>Time this information was requested: ${requestTime}.</p>`;
 
-  response.send(message);
-});
+//   response.send(message);
+// });
 
-app.get('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id);
-  const person = persons.find((item) => item.id === id);
+// app.get('/api/persons/:id', (request, response) => {
+//   const id = Number(request.params.id);
+//   const person = persons.find((item) => item.id === id);
 
-  if (person) {
-    response.json(person);
-  } else {
-    response.status(404).end();
-  }
-});
+//   if (person) {
+//     response.json(person);
+//   } else {
+//     response.status(404).end();
+//   }
+// });
 
-app.delete('/api/persons/:id', (request, response) => {
-  const id = Number(request.params.id);
-  persons = persons.filter((item) => item.id !== id);
+// app.delete('/api/persons/:id', (request, response) => {
+//   const id = Number(request.params.id);
+//    persons = persons.filter((item) => item.id !== id);
 
-  response.status(204).end();
-});
+//   response.status(204).end();
+// });
 
 app.post('/api/persons', (request, response) => {
   const body = request.body;
 
   // Check to see if name entered by the user is already in phonebook.
-  const name = persons.find(
-    (item) => item.name.toLowerCase() === body.name.toLowerCase()
-  );
+  //   const name = persons.find(
+  //     (item) => item.name.toLowerCase() === body.name.toLowerCase()
+  //   );
 
-  if (name) {
-    return response
-      .status(400)
-      .json({ error: 'The name you entered is already in the phonebook.' });
-  }
+  //   if (name) {
+  //     return response
+  //       .status(400)
+  //       .json({ error: 'The name you entered is already in the phonebook.' });
+  //   }
 
   // Check to see that both name and number fields have been filled in.
   if (!body.name || !body.number) {
@@ -106,23 +87,17 @@ app.post('/api/persons', (request, response) => {
       .json({ error: 'Name and number fields must be filled in.' });
   }
 
-  const person = {
-    id: generateId(),
+  const person = new Person({
     name: body.name,
     number: body.number,
-  };
+  });
 
-  persons = persons.concat(person);
-
-  response.json(person);
+  person.save().then((savedPerson) => {
+    response.json(savedPerson);
+  });
 });
 
-// Helper method used to generate a new ID for each person that is added to the phonebook.
-const generateId = () => {
-  return Math.floor(Math.random() * 10000 + 5);
-};
-
-const PORT = 3001;
+const PORT = process.env.PORT;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
