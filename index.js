@@ -59,12 +59,20 @@ app.get('/api/persons', (request, response) => {
 //   }
 // });
 
-// app.delete('/api/persons/:id', (request, response) => {
-//   const id = Number(request.params.id);
-//    persons = persons.filter((item) => item.id !== id);
+app.delete('/api/persons/:id', (request, response, next) => {
+  Person.findByIdAndDelete(request.params.id)
+    .then((result) => {
+      const deletedPerson = {
+        id: result._id.toString(),
+        name: result.name,
+        number: result.number,
+      };
 
-//   response.status(204).end();
-// });
+      response.json(deletedPerson);
+    })
+    // No custom handlers implemented for errors in this app yet.
+    .catch((error) => next(error));
+});
 
 app.post('/api/persons', (request, response) => {
   const body = request.body;
