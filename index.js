@@ -68,9 +68,9 @@ app.delete('/api/persons/:id', (request, response, next) => {
         number: result.number,
       };
 
+      // Send client formatted deletedPerson after deletion in database in order to update the UI with updated phonebook.
       response.json(deletedPerson);
     })
-    // No custom handlers implemented for errors in this app yet.
     .catch((error) => next(error));
 });
 
@@ -104,6 +104,20 @@ app.post('/api/persons', (request, response) => {
     response.json(savedPerson);
   });
 });
+
+const errorHandler = (error, request, response, next) => {
+  console.log('Error: ', error.message);
+
+  // If a person's id was malformed in the route's endpoint, we specifically address it here.
+  if (error.name === 'CastError') {
+    return response.status(400).send({ error: 'malformed id' });
+  }
+
+  // If the CastError condition above is not met, no response is sent back to the client by it, so we run the next(error) line below. If no other custom error handlers are defined by me, next(error) will send a generic, default error response to the client, like a 500 status code.
+  next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
