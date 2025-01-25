@@ -105,6 +105,17 @@ app.post('/api/persons', (request, response) => {
   });
 });
 
+app.put('/api/persons/:id', (request, response, next) => {
+  const updatedPerson = request.body;
+
+  // Set { new: true }, in order to get the updated person back in the response (we want the NEW person to be sent back to us, right?). Otherwise, the original person document is sent back in the response. This is an idiosyncrasy of Mongoose.
+  Person.findByIdAndUpdate(updatedPerson.id, updatedPerson, { new: true })
+    .then((returnedUpdate) => {
+      response.json(returnedUpdate);
+    })
+    .catch((error) => next(error));
+});
+
 const errorHandler = (error, request, response, next) => {
   console.log('Error: ', error.message);
 
