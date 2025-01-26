@@ -39,18 +39,20 @@ app.get('/api/persons', (request, response) => {
 });
 
 ///////////// COMMENTED OUT SOME CODE FOR EXERCISE 3.14. /////////////
-// app.get('/info', (request, response) => {
-//   const peopleCount = persons.length;
-//   const requestTime = new Date();
-//   const message = `<p>The phonebook has info for ${peopleCount} people.</p>
-//    <p>Time this information was requested: ${requestTime}.</p>`;
+app.get('/info', (request, response, next) => {
+  const infoRequestTime = new Date();
 
-//   response.send(message);
-// });
+  Person.countDocuments()
+    .then((documentCount) => {
+      const infoMessage = `<p>The phonebook has information for ${documentCount} people.</p> <p>Time this information was requested: ${infoRequestTime}.</p>`;
 
-app.get('/api/persons/:id', (request, response) => {
+      response.send(infoMessage);
+    })
+    .catch((error) => next(error));
+});
+
+app.get('/api/persons/:id', (request, response, next) => {
   const id = request.params.id;
-  console.log(`id: ${id}`);
 
   Person.findById(id)
     .then((person) => {
