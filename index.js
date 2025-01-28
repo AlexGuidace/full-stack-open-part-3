@@ -76,7 +76,7 @@ app.delete('/api/persons/:id', (request, response, next) => {
     .catch((error) => next(error));
 });
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
   const body = request.body;
 
   // Check to see if name entered by the user is already in phonebook.
@@ -102,16 +102,24 @@ app.post('/api/persons', (request, response) => {
     number: body.number,
   });
 
-  person.save().then((savedPerson) => {
-    response.json(savedPerson);
-  });
+  person
+    .save()
+    .then((savedPerson) => {
+      response.json(savedPerson);
+    })
+    .catch((error) => next(error));
 });
 
 app.put('/api/persons/:id', (request, response, next) => {
-  const updatedPerson = request.body;
+  const { name, number } = request.body;
 
   // Set { new: true }, in order to get the updated person back in the response (we want the NEW person to be sent back to us, right?). Otherwise, the original person document is sent back in the response. This is an idiosyncrasy of Mongoose.
-  Person.findByIdAndUpdate(updatedPerson.id, updatedPerson, { new: true })
+  // Secondly, validators (validation checks for fields we want to update, e.g. a Person object field) are not run by default in Mongoose for findOneAndUpdate() and similar methods, so we manually set the validators (and set the correct 'context' for them below as well so the validators work correctly) below.
+  Person.findByIdAndUpdate(
+    request.params.id,
+    { name, number },
+    { new: true, runValidators: true, context: 'query' }
+  )
     .then((returnedUpdate) => {
       response.json(returnedUpdate);
     })
@@ -119,14 +127,16 @@ app.put('/api/persons/:id', (request, response, next) => {
 });
 
 const errorHandler = (error, request, response, next) => {
-  console.log('Error: ', error.message);
+  console.log('Error from error handler: ', error.message);
 
   // If a person's id was malformed in the route's endpoint, we specifically address it here.
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformed id' });
+  } else if ((error.name = 'ValidationError')) {
+    return response.status(400).json({ error: error.message });
   }
 
-  // If the CastError condition above is not met, no response is sent back to the client by it, so we run the next(error) line below. If no other custom error handlers are defined by me, next(error) will send a generic, default error response to the client, like a 500 status code.
+  // If the conditions above are not met, no response is sent back to the client by them, so we run the next(error) line below. If no other custom error handlers are defined by me, next(error) will send a generic, default error response to the client, like a 500 status code.
   next(error);
 };
 
