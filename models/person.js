@@ -18,7 +18,19 @@ mongoose
 
 const personSchema = new mongoose.Schema({
   name: { type: String, minLength: 3 },
-  number: String,
+  number: {
+    type: String,
+    minLength: 8,
+    // Validator test to make sure the phone number follows a specific format.
+    validate: {
+      validator: function (value) {
+        return /^\d{2,3}-\d+$/.test(value);
+      },
+      // If the validator test fails, an error object is created by Mongoose and passed to this message function. The error object is props. And props.value is the value that failed the test.
+      message: (props) =>
+        `${props.value} is not a valid phone number. Please enter your number in the following format: 2-3 digits to start, followed by a -, followed by any number number of digits. E.g., 45-30993825.`,
+    },
+  },
 });
 
 // Transform each ID object into a string to avoid problems with ID objects later.
