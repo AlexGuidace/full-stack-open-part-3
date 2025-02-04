@@ -9,7 +9,7 @@ const morgan = require('morgan');
 const Person = require('./models/person');
 
 // Custom morgan token specifically used for logging payload data that was sent in POST requests.
-morgan.token('payloadData', (request, response) => {
+morgan.token('payloadData', (request) => {
   return JSON.stringify(request.body);
 });
 
@@ -132,7 +132,7 @@ const errorHandler = (error, request, response, next) => {
   // If a person's id was malformed in the route's endpoint, we specifically address it here.
   if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformed id' });
-  } else if ((error.name = 'ValidationError')) {
+  } else if (error.name === 'ValidationError') {
     return response.status(400).json({ error: error.message });
   }
 
